@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Lip Sync Studio - Free</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #cbd5e1;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background: #3b82f6;
+            border-color: #60a5fa;
+        }
+        
+        .section {
+            display: none;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .upload-area {
+            border: 3px dashed rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
+        .upload-area.has-file {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .record-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .record-btn.recording {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .result {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            background: #10b981;
+            margin-top: 10px;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .mode-btn.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.processing {
+            display: block;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+        }
+        
+        .status.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+        }
+        
+        .status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎭 AI Video Studio</h1>
+            <p class="subtitle">Free Video Lip Sync, Talking Avatars & Image Animation</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('lipsync')">🎬 Lip Sync</div>
+            <div class="tab" onclick="showTab('talking')">👤 Talking Avatar</div>
+            <div class="tab" onclick="showTab('animate')">🖼️ Image to Video</div>
+        </div>
+
+        <!-- Lip Sync Section -->
+        <div id="lipsync" class="section active">
+            <h2 style="margin-bottom: 20px; color: #60a5fa;">Video Lip Synchronization</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()" id="videoUpload">
+                <div id="videoPlaceholder">
+                    <div style="font-size: 50px; margin-bottom: 10px;">📹</div>
+                    <p>Click to upload video</p>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 5px;">MP4, MOV, AVI up to 50MB</p>
+                </div>
+                <div id="videoInfo" class="hidden">
+                    <p style="color: #10b981; font-weight: bold;">✓ Video Selected</p>
+                    <p id="videoName" style="font-size: 14px; margin-top: 5px;"></p>
+                </div>
+            </div>
+            <input type="file" id="videoInput" accept="video/*" onchange="handleVideoSelect(event)">
+
+            <div class="mode-toggle">
+                <div class="mode-btn active" onclick="setMode('record')">🎤 Record Audio</div>
+                <div class="mode-btn" onclick="setMode('text')">📝 Text to Speech</div>
+            </div>
+
+            <div id="recordSection">
+                <div style="text-align: center;">
+                    <button class="record-btn" id="recordBtn" onclick="toggleRecord()">🎤</button>
+                    <p id="recordStatus">Tap to start recording</p>
+                    <audio id="audioPreview" controls class="hidden" style="width: 100%; margin-top: 15px;"></audio>
+                </div>
+            </div>
+
+            <div id="textSection" class="hidden">
+                <textarea id="lipSyncText" placeholder="Enter text to convert to speech..."></textarea>
+                <select id="voiceSelect">
+                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female, American)</option>
+                    <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female, American)</option>
+                    <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female, American)</option>
+                    <option value="ErXwobaYiN019PkySvjV">Antoni (Male, American)</option>
+                    <option value="MF3mGyEYCl7XYWbV9V6O">Elli (Female, American)</option>
+                    <option value="TxGEqnHWrfWFTfGW9XjX">Josh (Male, American)</option>
+                    <option value="VR6AewLTigWG4xSOukaG">Arnold (Male, American)</option>
+                    <option value="pNInz6obpgDQGcFmaJgB">Adam (Male, American)</option>
+                </select>
+            </div>
+
+            <button onclick="processLipSync()" id="lipSyncBtn">🎬 Generate Lip Sync Video</button>
+            
+            <div class="progress" id="lipSyncProgress">
+                <div class="progress-bar" id="lipSyncBar"></div>
+            </div>
+            
+            <div class="status" id="lipSyncStatus"></div>
+            
+            <div class="result" id="lipSyncResult">
+                <h3 style="color: #10b981; margin-bottom: 15px;">✓ Video Generated!</h3>
+                <video id="resultVideo" controls></video>
+                <a id="downloadLink" download>
+                    <button class="download-btn">⬇️ Download Video</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Talking Avatar Section -->
+        <div id="talking" class="section">
+            <h2 style="margin-bottom: 20px; color: #a78bfa;">AI Talking Avatar</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('avatarInput').click()" id="avatarUpload">
+                <div id="avatarPlaceholder">
+                    <div style="font-size: 50px; margin-bottom: 10px;">📸</div>
+                    <p>Upload clear face photo</p>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 5px;">JPG or PNG, front-facing works best</p>
+                </div>
+                <img id="avatarPreview" class="preview-img hidden">
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarSelect(event)">
+
+            <textarea id="avatarText" placeholder="What should the avatar say?"></textarea>
+            
+            <select id="avatarVoice">
+                <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female, American)</option>
+                <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female, American)</option>
+                <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female, American)</option>
+                <option value="ErXwobaYiN019PkySvjV">Antoni (Male, American)</option>
+                <option value="MF3mGyEYCl7XYWbV9V6O">Elli (Female, American)</option>
+                <option value="TxGEqnHWrfWFTfGW9XjX">Josh (Male, American)</option>
+                <option value="VR6AewLTigWG4xSOukaG">Arnold (Male, American)</option>
+                <option value="pNInz6obpgDQGcFmaJgB">Adam (Male, American)</option>
+            </select>
+
+            <button onclick="generateAvatar()" id="avatarBtn">🎭 Create Talking Avatar</button>
+            
+            <div class="progress" id="avatarProgress">
+                <div class="progress-bar" id="avatarBar"></div>
+            </div>
+            
+            <div class="status" id="avatarStatus"></div>
+            
+            <div class="result" id="avatarResult">
+                <h3 style="color: #10b981; margin-bottom: 15px;">✓ Avatar Generated!</h3>
+                <video id="avatarVideo" controls autoplay></video>
+                <a id="avatarDownload" download>
+                    <button class="download-btn">⬇️ Download Video</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Image to Video Section -->
+        <div id="animate" class="section">
+            <h2 style="margin-bottom: 20px; color: #f472b6;">Image to Video AI</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('animateInput').click()" id="animateUpload">
+                <div id="animatePlaceholder">
+                    <div style="font-size: 50px; margin-bottom: 10px;">🖼️</div>
+                    <p>Upload image to animate</p>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 5px;">JPG or PNG</p>
+                </div>
+                <img id="animatePreview" class="preview-img hidden">
+            </div>
+            <input type="file" id="animateInput" accept="image/*" onchange="handleAnimateSelect(event)">
+
+            <textarea id="animatePrompt" placeholder="Describe the motion you want (e.g., 'A person smiling gently, natural lighting, subtle head movement')"></textarea>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px;">Duration: <span id="durationValue">4</span> seconds</label>
+                <input type="range" id="duration" min="2" max="10" value="4" oninput="document.getElementById('durationValue').textContent=this.value" style="width: 100%;">
+            </div>
+
+            <button onclick="animateImage()" id="animateBtn">✨ Generate Video from Image</button>
+            
+            <div class="progress" id="animateProgress">
+                <div class="progress-bar" id="animateBar"></div>
+            </div>
+            
+            <div class="status" id="animateStatus"></div>
+            
+            <div class="result" id="animateResult">
+                <h3 style="color: #10b981; margin-bottom: 15px;">✓ Video Generated!</h3>
+                <video id="animateVideo" controls autoplay loop></video>
+                <a id="animateDownload" download>
+                    <button class="download-btn">⬇️ Download Video</button>
+                </a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎬</div>
+                <h3>High Quality</h3>
+                <p style="font-size: 14px; opacity: 0.8;">Professional-grade AI processing</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast Processing</h3>
+                <p style="font-size: 14px; opacity: 0.8;">Cloud GPU acceleration</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>100% Free</h3>
+                <p style="font-size: 14px; opacity: 0.8;">No signup, no watermark</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Keys - REPLACE THESE WITH YOUR KEYS
+        const API_KEYS = {
+            ELEVENLABS: 'sk_0fa35d52a0fc7bafe4f13b5b881e65b20d29c756bb0a34a8',
+            REPLICATE: 'r8_ceeoBi4x0rAYPf2VPUGVMeBAO0S9J1A2BzLNA',
+            DID: 'dG9waWxvd2V2YW4xMkBnbWFpbC5jb20:9hZG6db0eKk6AMJ8PuJHS',
+            CLOUDINARY_CLOUD: 'dtxc7oocw',
+            CLOUDINARY_KEY: 'your_cloudinary_api_key_here',
+            CLOUDINARY_SECRET: 'your_cloudinary_secret_here'
+        };
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordedBlob = null;
+        let currentMode = 'record';
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'record') {
+                document.getElementById('recordSection').classList.remove('hidden');
+                document.getElementById('textSection').classList.add('hidden');
+            } else {
+                document.getElementById('recordSection').classList.add('hidden');
+                document.getElementById('textSection').classList.remove('hidden');
+            }
+        }
+
+        function handleVideoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('videoPlaceholder').classList.add('hidden');
+                document.getElementById('videoInfo').classList.remove('hidden');
+                document.getElementById('videoName').textContent = file.name;
+                document.getElementById('videoUpload').classList.add('has-file');
+            }
+        }
+
+        function handleAvatarSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('avatarPreview').classList.remove('hidden');
+                    document.getElementById('avatarPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleAnimateSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('animatePreview').src = e.target.result;
+                    document.getElementById('animatePreview').classList.remove('hidden');
+                    document.getElementById('animatePlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function toggleRecord() {
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordStatus');
+            
+            if (btn.classList.contains('recording')) {
+                // Stop recording
+                mediaRecorder.stop();
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+                status.textContent = 'Recording saved! Tap to record again';
+            } else {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(recordedBlob);
+                        const audioPreview = document.getElementById('audioPreview');
+                        audioPreview.src = audioUrl;
+                        audioPreview.classList.remove('hidden');
+                    };
+                    
+                    mediaRecorder.start();
+                    btn.classList.add('recording');
+                    btn.textContent = '⏹️';
+                    status.textContent = 'Recording... Tap to stop';
+                } catch (err) {
+                    alert('Microphone access denied. Please allow microphone access.');
+                }
+            }
+        }
+
+        async function uploadToCloudinary(file, resourceType = 'auto') {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'video_lip_sync'); // You'll need to create this
+            
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${API_KEYS.CLOUDINARY_CLOUD}/${resourceType}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+
+        async function generateTTS(text, voiceId) {
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': API_KEYS.ELEVENLABS
+                },
+                body: JSON.stringify({
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                })
+            });
+            
+            return await response.blob();
+        }
+
+        async function processLipSync() {
+            const videoFile = document.getElementById('videoInput').files[0];
+            if (!videoFile) {
+                alert('Please select a video first');
+                return;
+            }
+
+            const btn = document.getElementById('lipSyncBtn');
+            const progress = document.getElementById('lipSyncProgress');
+            const bar = document.getElementById('lipSyncBar');
+            const status = document.getElementById('lipSyncStatus');
+            
+            btn.disabled = true;
+            progress.style.display = 'block';
+            status.className = 'status processing';
+            status.textContent = 'Uploading video...';
+            status.style.display = 'block';
+
+            try {
+                // Step 1: Upload video
+                bar.style.width = '20%';
+                const videoUpload = await uploadToCloudinary(videoFile, 'video');
+                
+                // Step 2: Get audio
+                let audioBlob;
+                if (currentMode === 'record') {
+                    if (!recordedBlob) {
+                        throw new Error('Please record audio first');
+                    }
+                    audioBlob = recordedBlob;
+                } else {
+                    status.textContent = 'Generating speech...';
+                    const text = document.getElementById('lipSyncText').value;
+                    if (!text.trim()) throw new Error('Please enter text');
+                    const voiceId = document.getElementById('voiceSelect').value;
+                    audioBlob = await generateTTS(text, voiceId);
+                }
+                
+                bar.style.width = '40%';
+                status.textContent = 'Uploading audio...';
+                
+                // Step 3: Upload audio
+                const audioUpload = await uploadToCloudinary(audioBlob, 'raw');
+                
+                bar.style.width = '60%';
+                status.textContent = 'AI processing video (this may take 2-3 minutes)...';
+                
+                // Step 4: Call Replicate for lip sync (Wav2Lip)
+                const response = await fetch('https://api.replicate.com/v1/predictions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${API_KEYS.REPLICATE}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        version: "e8e18d8b7c5e3c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8", // Replace with actual Wav2Lip version
+                        input: {
+                            face: videoUpload.secure_url,
+                            audio: audioUpload.secure_url,
+                            fps: 25,
+                            pads: "0 10 0 0",
+                            face_det_batch_size: 16,
+                            wav2lip_batch_size: 128,
+                            resize_factor: 1
+                        }
+                    })
+                });
+                
+                const prediction = await response.json();
+                
+                // Poll for result
+                let result = null;
+                while (!result) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    const statusRes = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
+                        headers: { 'Authorization': `Token ${API_KEYS.REPLICATE}` }
+                    });
+                    const statusData = await statusRes.json();
+                    
+                    if (statusData.status === 'succeeded') {
+                        result = statusData.output;
+                        break;
+                    } else if (statusData.status === 'failed') {
+                        throw new Error('AI processing failed');
+                    }
+                    
+                    bar.style.width = Math.min(60 + (Date.now() % 30), 95) + '%';
+                }
+                
+                bar.style.width = '100%';
+                status.className = 'status success';
+                status.textContent = 'Complete!';
+                
+                // Show result
+                const resultDiv = document.getElementById('lipSyncResult');
+                const video = document.getElementById('resultVideo');
+                video.src = result;
+                resultDiv.style.display = 'block';
+                document.getElementById('downloadLink').href = result;
+                
+            } catch (error) {
+                console.error(error);
+                status.className = 'status error';
+                status.textContent = 'Error: ' + error.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function generateAvatar() {
+            const photoFile = document.getElementById('avatarInput').files[0];
+            const text = document.getElementById('avatarText').value;
+            
+            if (!photoFile || !text.trim()) {
+                alert('Please upload a photo and enter text');
+                return;
+            }
+
+            const btn = document.getElementById('avatarBtn');
+            const progress = document.getElementById('avatarProgress');
+            const bar = document.getElementById('avatarBar');
+            const status = document.getElementById('avatarStatus');
+            
+            btn.disabled = true;
+            progress.style.display = 'block';
+            status.className = 'status processing';
+            status.textContent = 'Uploading photo...';
+            status.style.display = 'block';
+
+            try {
+                // Step 1: Upload photo
+                bar.style.width = '20%';
+                const photoUpload = await uploadToCloudinary(photoFile, 'image');
+                
+                // Step 2: Generate TTS
+                status.textContent = 'Generating voice...';
+                bar.style.width = '40%';
+                const voiceId = document.getElementById('avatarVoice').value;
+                const audioBlob = await generateTTS(text, voiceId);
+                const audioUpload = await uploadToCloudinary(audioBlob, 'raw');
+                
+                // Step 3: Call D-ID API
+                status.textContent = 'Creating talking avatar (this may take 2-3 minutes)...';
+                bar.style.width = '60%';
+                
+                const response = await fetch('https://api.d-id.com/talks', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Basic ${API_KEYS.DID}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source_url: photoUpload.secure_url,
+                        script: {
+                            type: 'audio',
+                            audio_url: audioUpload.secure_url
+                        },
+                        config: {
+                            stitch: true,
+                            result_format: 'mp4'
+                        }
+                    })
+                });
+                
+                const prediction = await response.json();
+                
+                // Poll for result
+                let result = null;
+                while (!result) {
+                    await new Promise(r => setTimeout(r, 3000));
+                    const statusRes = await fetch(`https://api.d-id.com/talks/${prediction.id}`, {
+                        headers: { 'Authorization': `Basic ${API_KEYS.DID}` }
+                    });
+                    const statusData = await statusRes.json();
+                    
+                    if (statusData.status === 'done') {
+                        result = statusData.result_url;
+                        break;
+                    } else if (statusData.status === 'error') {
+                        throw new Error('Avatar generation failed');
+                    }
+                    
+                    bar.style.width = Math.min(60 + (Date.now() % 30), 95) + '%';
+                }
+                
+                bar.style.width = '100%';
+                status.className = 'status success';
+                status.textContent = 'Complete!';
+                
+                // Show result
+                const resultDiv = document.getElementById('avatarResult');
+                const video = document.getElementById('avatarVideo');
+                video.src = result;
+                resultDiv.style.display = 'block';
+                document.getElementById('avatarDownload').href = result;
+                
+            } catch (error) {
+                console.error(error);
+                status.className = 'status error';
+                status.textContent = 'Error: ' + error.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function animateImage() {
+            const photoFile = document.getElementById('animateInput').files[0];
+            const prompt = document.getElementById('animatePrompt').value;
+            const duration = document.getElementById('duration').value;
+            
+            if (!photoFile || !prompt.trim()) {
+                alert('Please upload an image and describe the animation');
+                return;
+            }
+
+            const btn = document.getElementById('animateBtn');
+            const progress = document.getElementById('animateProgress');
+            const bar = document.getElementById('animateBar');
+            const status = document.getElementById('animateStatus');
+            
+            btn.disabled = true;
+            progress.style.display = 'block';
+            status.className = 'status processing';
+            status.textContent = 'Uploading image...';
+            status.style.display = 'block';
+
+            try {
+                // Step 1: Upload image
+                bar.style.width = '20%';
+                const photoUpload = await uploadToCloudinary(photoFile, 'image');
+                
+                // Step 2: Call Replicate for image-to-video
+                status.textContent = 'AI animating image (this may take 3-5 minutes)...';
+                bar.style.width = '40%';
+                
+                const response = await fetch('https://api.replicate.com/v1/predictions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${API_KEYS.REPLICATE}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        version: "stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438",
+                        input: {
+                            image: photoUpload.secure_url,
+                            prompt: prompt,
+                            num_frames: Math.min(duration * 6, 60),
+                            fps: 6,
+                            motion_bucket_id: 127
+                        }
+                    })
+                });
+                
+                const prediction = await response.json();
+                
+                // Poll for result
+                let result = null;
+                while (!result) {
+                    await new Promise(r => setTimeout(r, 4000));
+                    const statusRes = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
+                        headers: { 'Authorization': `Token ${API_KEYS.REPLICATE}` }
+                    });
+                    const statusData = await statusRes.json();
+                    
+                    if (statusData.status === 'succeeded') {
+                        result = Array.isArray(statusData.output) ? statusData.output[0] : statusData.output;
+                        break;
+                    } else if (statusData.status === 'failed') {
+                        throw new Error('Animation failed');
+                    }
+                    
+                    bar.style.width = Math.min(40 + (Date.now() % 50), 95) + '%';
+                }
+                
+                bar.style.width = '100%';
+                status.className = 'status success';
+                status.textContent = 'Complete!';
+                
+                // Show result
+                const resultDiv = document.getElementById('animateResult');
+                const video = document.getElementById('animateVideo');
+                video.src = result;
+                resultDiv.style.display = 'block';
+                document.getElementById('animateDownload').href = result;
+                
+            } catch (error) {
+                console.error(error);
+                status.className = 'status error';
+                status.textContent = 'Error: ' + error.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
